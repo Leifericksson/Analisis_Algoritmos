@@ -102,9 +102,8 @@ class algoritmos:
 
 class Cadena:
 	def __init__(self):
-		#self.b = Biblioteca()
 		self.g = Grafo()
-		#self.csvR = CsvRecorrido()
+		
 
 	def ID(self, listaAristas):
 		# Se prorciona la lista de nodo a la clase nodo
