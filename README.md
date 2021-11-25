@@ -1,6 +1,11 @@
 # Analisis_Algoritmos
-Hola Dr.
-Se comparten los codigos del proyecto_3
 
+Hola Dr. Rolando
 
-Saludos! :)
+Le comparto el codigo del proyecto_3
+
+***************************************************************************************************************
+****************** Todavia me falta agregar información solicitada en breve se la compartiré ******************
+***************************************************************************************************************
+
+Saludos!
