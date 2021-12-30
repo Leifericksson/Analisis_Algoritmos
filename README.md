@@ -1,6 +1,7 @@
 # Analisis_Algoritmos
-Hola Dr.
-Se comparten los codigos del proyecto
-ademas, los .dot que son los archivos que genera el codigo y listos para cargar en gephi
+Hola Dr. Rolando
 
-Saludos! :)
+Le comparto el codigo solicitado del proyecto_4
+
+Saludos!
+
