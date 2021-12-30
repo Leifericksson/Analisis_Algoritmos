@@ -2,6 +2,8 @@
 
 Hola Dr. Rolando
 
-Le comparto el codigo del proyecto_3
+Le comparto todo lo solicitado del proyecto_3
+
+Saludos!
 
 
