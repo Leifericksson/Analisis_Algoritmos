@@ -1,0 +1,10 @@
+digraph example{
+1 -> 0 [Label = "nodo_1 (431)"];
+1 -> 2 [Label = "nodo_1 (157)"];
+4 -> 3 [Label = "nodo_1 (695)"];
+1 -> 4 [Label = "nodo_1 (384)"];
+2 -> 5 [Label = "nodo_1 (456)"];
+3 -> 6 [Label = "nodo_1 (1041)"];
+4 -> 7 [Label = "nodo_1 (877)"];
+5 -> 8 [Label = "nodo_1 (723)"];
+}
