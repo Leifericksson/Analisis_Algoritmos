@@ -52,15 +52,6 @@ class Grafo:
 
 		return self.a, self.b
 
-	'''def camino(self, a, b):
-		camino = []
-		actual = b
-		while actual != None:
-			camino.insert(0, actual)
-
-			actual = self.nodos[actual].padre
-		return [camino, self.nodos[b].distancia]'''
-
 	def distancia(self, lista):
 		if len(lista) > 0:
 			m = self.nodos[lista[0]].distancia
@@ -85,11 +76,7 @@ class Grafo:
 				if v != a:
 					self.nodos[v].distancia = float('inf')  # los nodos previamente identifi se asigna valor inf peso
 				nodvisitado.append(v)
-				# print("distancia", self.nodos[v].distancia)
-				# print("padre", self.nodos[v].padre)
-				# print("vecinos", self.nodos[v].vecinos)
-				# print("nodovisit", nodvisitado)
-				# print("visitado", self.nodos[v].visitado)
+		
 
 			while len(nodvisitado) > 0:  # Mientras la cola no este vacia
 				for vecino in self.nodos[actual].vecinos:
@@ -275,8 +262,6 @@ class Main:
 	n = int(input("seleccionar nodo: "))
 
 	g.dijkstra(n)
-	#  cam = g.camino(1, n)  # se escoge el nodo de inicio
-	#  print("cam", cam)
 	val = 'digraph example{\n'
 	for v in g.nodos:
 		val += str(g.nodos[v].padre) + " -> " + str(v) + " [Label = 'nodo_" + str(n) + " (" + str(g.nodos[v].distancia) \
