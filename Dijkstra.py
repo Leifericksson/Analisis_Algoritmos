@@ -9,11 +9,13 @@ class Nodo:
 		self.nivel = 0
 		self.vecinos = []
 		self.padre = None
-		# print("aa:",id)
+		self.distancia = float('inf')
 
-	def agregavecinos(self, v):
+	# print("aa:",id)
+
+	def agregavecinos(self, v, p):
 		if not v in self.vecinos:
-			self.vecinos.append(v)
+			self.vecinos.append([v, p])
 		print("vecinos:", self.vecinos)
 
 
@@ -33,75 +35,87 @@ class Grafo:
 
 	def agregarnodo(self, v):
 		if not v in self.nodos:
-			self.nodos[v] = Nodo(v)  # <--revisar_bien
+			self.nodos[v] = Nodo(v)
 			print("nodos:", self.nodos[v].i)
 
-	def agregararista(self, a, b):
+	def agregararista(self, a, b, p):
 		if a in self.nodos and b in self.nodos:
-			self.nodos[a].agregavecinos(b)
+			self.nodos[a].agregavecinos(b, p)
 			print("nodos[a]", self.nodos[a].i)
-			self.nodos[b].agregavecinos(a)
+			self.nodos[b].agregavecinos(a, p)
 			print("nodos[b]", self.nodos[b].i)
 
-	def ariname(self, v, a, b):
+	def ariname(self, i, a, b):
 		self.a = a
 		self.b = b
+		self.i = i
 
 		return self.a, self.b
 
-	def bfs(self, r):
-		guardabfs = []
-		if r in self.nodos:
-			cola = [r]
+	'''def camino(self, a, b):
+		camino = []
+		actual = b
+		while actual != None:
+			camino.insert(0, actual)
 
-			self.nodos[r].visitado = True
-			self.nodos[r].nivel = 0
-			print("(" + str(r) + ", " + str(self.nodos[r].nivel) + ")")
-			while (len(cola) > 0):
-				act = cola[0]
-				cola = cola[1:]
+			actual = self.nodos[actual].padre
+		return [camino, self.nodos[b].distancia]'''
 
-				for v in self.nodos[act].vecinos:
-					if self.nodos[v].visitado == False:
-						cola.append(v)
-						self.nodos[v].visitado = True
-						self.nodos[v].nivel = self.nodos[act].nivel + 1
-						guardabfs.append((v, self.nodos[v].nivel))
-						print("(" + str(v) + ", " + str(self.nodos[v].nivel) + ")")
-		self.storeR = guardabfs
-		print("bfs:", self.storeR)
+	def distancia(self, lista):
+		if len(lista) > 0:
+			m = self.nodos[lista[0]].distancia
+			print("m1", m)
+			v = lista[0]
+			for e in lista:
+				print("e", e)
+				if m > self.nodos[e].distancia:
+					m = self.nodos[e].distancia
+					v = e
+					print("m", m)
+					print("v", v)
+			return v
 
-	def dfs_I(self, r):
-		self.guardadfs = []
-		if r in self.nodos:
-			self.nodos[r].visitado = True
-			d = self.nodos[r].vecinos
-			#print("d", d)
-			l = len(self.nodos[r].vecinos) - 1
+	def dijkstra(self, a):
+		if a in self.nodos:
+			self.nodos[a].distancia = 0  # Actualiza la dist del nodo padre = 0
+			actual = a
+			nodvisitado = []  # Conjunto de nodos
 
-			newlista = []
-			while (l >= 0):
-				newlista.append(d[l])
-				l = l - 1
-				#print("new",newlista)
-			for nodo in newlista:
+			for v in self.nodos:
+				if v != a:
+					self.nodos[v].distancia = float('inf')  # los nodos previamente identifi se asigna valor inf peso
+				nodvisitado.append(v)
+				# print("distancia", self.nodos[v].distancia)
+				# print("padre", self.nodos[v].padre)
+				# print("vecinos", self.nodos[v].vecinos)
+				# print("nodovisit", nodvisitado)
+				# print("visitado", self.nodos[v].visitado)
 
-				if self.nodos[nodo].visitado == False:
-					self.nodos[nodo].padre = r
-					self.guardadfs.append((r, nodo))
-					print("(" + str(r) + ", " + str(nodo) + ")")
-					self.dfs_I(nodo)
-		self.storeR = self.guardadfs
-		#print("dfs:", self.storeR)
+			while len(nodvisitado) > 0:  # Mientras la cola no este vacia
+				for vecino in self.nodos[actual].vecinos:
+					# print("vecino0", vecino[0], "vecino1", vecino[1])
+					if self.nodos[vecino[0]].visitado == False:
+						if self.nodos[vecino[0]].distancia > self.nodos[actual].distancia + vecino[1]:
+							self.nodos[vecino[0]].distancia = self.nodos[actual].distancia + vecino[1]
+							self.nodos[vecino[0]].padre = actual
+							print("test1", self.nodos[vecino[0]].distancia)
+							print("test2", self.nodos[vecino[0]].padre)
+				self.nodos[actual].visitado = True
+				nodvisitado.remove(actual)
+				actual = self.distancia(nodvisitado)
+				# print("actual", actual)
+		else:
+			return False
 
 
-class Cadena:
+class Listas:
 	def __init__(self):
 
 		self.g = Grafo()
+		self.peso = []
+		self.listaDj = []
 
-	def ID(self, listaAristas):
-		# Se prorciona la lista de nodo a la clase nodo
+	def Ghephi(self, listaAristas):
 		self.listaAristas = listaAristas
 
 		listaAristasL = []
@@ -118,7 +132,7 @@ class Cadena:
 			val += str(li[i]) + " -- " + str(li[i + 1]) + ";\n"
 		val += "}\n"
 
-		file = open("Malla.dot", "w+")
+		file = open("Generados.dot", "w+")
 		file.write(val)
 		file.close()
 
@@ -132,17 +146,22 @@ class algoritmos:
 	def malla(self, m, n):
 
 		g = Grafo()
+		hor = []
+		ver = []
+
 		graf = []
 
 		for i in range(m):
 			for j in range(n):
 				if j < n - 1:
-					hor = g.ariname(i * n + j, i * n + j + 1)
-					print("hor",hor)
+					hor = g.ariname(i, i * n + j, i * n + j + 1)
+					print("hor", hor)
 				if i < m - 1:
-					ver =g.ariname(i * n + j, (i + 1) * n + j)
-					print("ver",ver)
+					ver = g.ariname(i, i * n + j, (i + 1) * n + j)
+					print("ver", ver)
 				graf.append(hor + ver)
+				hor = ()
+				ver = ()
 		return graf
 
 	def erdos(self, n, a):
@@ -151,10 +170,9 @@ class algoritmos:
 		graf = []
 
 		for i in range(a):
-			n0 = rd.randint(0, n-1)
-			n1 = rd.randint(0, n-1)
-			#print("n0", n0)
-			#print("n1", n1)
+			n0 = rd.randint(0, n - 1)
+			n1 = rd.randint(0, n - 1)
+
 			if n0 != n1:
 				graf.append(g.ariname(i, n0, n1))
 				print("arime", graf)
@@ -201,14 +219,14 @@ class algoritmos:
 		graf = []
 		var = []
 
-		for j in range(1, n+1):
+		for j in range(1, n + 1):
 			# print("j", j)
 			var.append(j)
 			rd.shuffle(var)
 			for k in range(j):
 				# print("k", k)
 				grad = var[k]
-				p = 1 - (grad/a)
+				p = 1 - (grad / a)
 				# print("p", p)
 				if rd.random() < p:
 					if var[k] != j:
@@ -219,33 +237,53 @@ class algoritmos:
 
 
 class Main:
-
 	h = algoritmos()
 	g = Grafo()
-	c = Cadena()
+	c = Listas()
+	peso = []
+	listDij = []
 
-	n = int(input("introduzca el numero de nodos:"))
-	a = int(input("introduzca el numero de arista por nodo:"))
-
-	for l in range(n):
+	# n = int(input("introduzca el numero de nodos:"))
+	# a = int(input("introduzca el numero de arista por nodo:"))
+	n = int(input("valor de malla nxn: "))
+	m = n * n
+	for l in range(m):
 		g.agregarnodo(l)
 
-	result = h.bara(n, a)
+	result = h.malla(n, n)
 	print("result", result)
 
-	bfss = c.ID(result)
+	bfss = c.Ghephi(result)
 	print(bfss)
 
 	for i in range(0, len(bfss) - 1, 2):
-		g.agregararista(bfss[i], bfss[i + 1])
+		p = rd.randint(100, 500)
+		peso.append((bfss[i], bfss[i + 1], p))
+		print("peso", peso)
+
+	for i in range(0, len(peso)):
+		for j in range(0, 3):
+			listDij.append(peso[i][j])
+			print("listDij", listDij)
+
+	for i in range(0, len(listDij) - 1, 3):
+		g.agregararista(listDij[i], listDij[i + 1], listDij[i + 2])
 
 	for v in g.nodos:
 		print("vecino", (v, g.nodos[v].vecinos))
 
 	n = int(input("seleccionar nodo: "))
 
-	g.bfs(n)
-	#g.dfs_I(n)
-
+	g.dijkstra(n)
+	#  cam = g.camino(1, n)  # se escoge el nodo de inicio
+	#  print("cam", cam)
+	val = 'digraph example{\n'
+	for v in g.nodos:
+		val += str(g.nodos[v].padre) + " -> " + str(v) + " [Label = 'nodo_" + str(n) + " (" + str(g.nodos[v].distancia) \
+		       + ")'];\n"
+	val += "}\n"
+	file = open("Calculados.dot", "w+")
+	file.write(val)
+	file.close()
 
 Main()
