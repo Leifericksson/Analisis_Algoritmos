@@ -1,0 +1,6 @@
+digraph example{
+1 -> 2[label= "255"];
+1 -> 3[label= "144"];
+2 -> 4[label= "235"];
+3 -> 4[label= "458"];
+}
