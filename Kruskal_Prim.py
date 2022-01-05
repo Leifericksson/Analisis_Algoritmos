@@ -1,65 +1,73 @@
 import random as rd
 import numpy as np
+from queue import PriorityQueue
 
 
+# Creamos la clase Nodo
 class Nodo:
-	def __init__(self, i):
-		self.i = i
+	def __init__(self, id):
+		self.id = id
+		self.grado = 0
 		self.visitado = False
-		self.nivel = 0
 		self.vecinos = []
 		self.padre = None
 		self.distancia = float('inf')
 
-	# print("aa:",id)
-
-	def agregavecinos(self, v, p):
-		if not v in self.vecinos:
-			self.vecinos.append([v, p])
-		print("vecinos:", self.vecinos)
+	def __str__(self):
+		return str(self.id)
 
 
 # Creamos la clase Arista
 class Arista:
 
-	def __init__(self, n0, n1, id):
-		self.nodo0 = n0
-		self.nodo1 = n1
-		self.id = id
+	def __init__(self, a, b):
+		self.a = a
+		self.b = b
+		self.id = str(a) + ' -> ' + str(b)
+		self.peso = rd.randint(100, 500)
+
+	def __str__(self):
+		return str(self.id)
+
+	def __lt__(self, otraArista):
+		return self.peso < otraArista.peso
 
 
+# Creamos la clase Grafo
 class Grafo:
-	def __init__(self):
+	def __init__(self, id="Graph"):
+		self.id = id
 		self.nodos = {}
-		self.aristas = []
+		self.aristas = {}
+		self.pariente = []
+		self.nivel = []
 
 	def agregarnodo(self, v):
 		if not v in self.nodos:
 			self.nodos[v] = Nodo(v)
-			print("nodos:", self.nodos[v].i)
+			# print("nodos:", self.nodos[v].id)
 
-	def agregararista(self, a, b, p):
+	def agregararista(self, a, b):
 		if a in self.nodos and b in self.nodos:
-			self.nodos[a].agregavecinos(b, p)
-			print("nodos[a]", self.nodos[a].i)
-			self.nodos[b].agregavecinos(a, p)
-			print("nodos[b]", self.nodos[b].i)
+			new = Arista(self.nodos[a], self.nodos[b])
+			self.aristas[new.id] = new
+			self.nodos[a].grado += 1
+			self.nodos[b].grado += 1
+			print("nodos_surce: ", self.nodos[a].grado)
+			print("nodos_target: ", self.nodos[b].grado)
+			print("aris_id: ", self.aristas[new.id])
+			print("arista_peso", self.aristas[new.id].peso, "\n")
 
-	def ariname(self, i, a, b):
-		self.a = a
-		self.b = b
-		self.i = i
+	def nodo_krusk_prim(self, nodo_kru_prim):
+		self.nodos[nodo_kru_prim.id] = nodo_kru_prim
 
-		return self.a, self.b
+	def arista_krusk_prim(self, aris_kru_prim):
+		self.aristas[aris_kru_prim.id] = aris_kru_prim
 
-	'''def camino(self, a, b):
-		camino = []
-		actual = b
-		while actual != None:
-			camino.insert(0, actual)
-
-			actual = self.nodos[actual].padre
-		return [camino, self.nodos[b].distancia]'''
+	def ariname(self, a):
+		if self.pariente[a] == a:
+			return a
+		return self.ariname(self.pariente[a])
 
 	def distancia(self, lista):
 		if len(lista) > 0:
@@ -85,15 +93,15 @@ class Grafo:
 				if v != a:
 					self.nodos[v].distancia = float('inf')  # los nodos previamente identifi se asigna valor inf peso
 				nodvisitado.append(v)
-			# print("distancia", self.nodos[v].distancia)
-			# print("padre", self.nodos[v].padre)
-			# print("vecinos", self.nodos[v].vecinos)
-			# print("nodovisit", nodvisitado)
-			# print("visitado", self.nodos[v].visitado)
+				# print("distancia", self.nodos[v].distancia)
+				# print("padre", self.nodos[v].padre)
+				# print("vecinos", self.nodos[v].vecinos)
+				# print("nodovisit", nodvisitado)
+				# print("visitado", self.nodos[v].visitado, "\n")
 
 			while len(nodvisitado) > 0:  # Mientras la cola no este vacia
 				for vecino in self.nodos[actual].vecinos:
-					# print("vecino0", vecino[0], "vecino1", vecino[1])
+					print("vecino0", vecino[0], "vecino1", vecino[1])
 					if self.nodos[vecino[0]].visitado == False:
 						if self.nodos[vecino[0]].distancia > self.nodos[actual].distancia + vecino[1]:
 							self.nodos[vecino[0]].distancia = self.nodos[actual].distancia + vecino[1]
@@ -103,115 +111,213 @@ class Grafo:
 				self.nodos[actual].visitado = True
 				nodvisitado.remove(actual)
 				actual = self.distancia(nodvisitado)
-			# print("actual", actual)
+			print("actual", actual)
 		else:
 			return False
 
+	def Kruskal_D(self):
+		name = self.id + ' Kruskal'
+		graph_kru = Grafo(name)
+		q = PriorityQueue()
+		nod = len(self.nodos) + 1
 
-class Listas:
-	def __init__(self):
+		for a in range(nod):
+			self.pariente.append(False)
+			self.nivel.append(float('inf'))
 
-		self.g = Grafo()
-		self.peso = []
-		self.listaDj = []
+		for key, value in self.nodos.items():
+			self.pariente[value.id] = value.id
+			self.nivel[value.id] = 0
 
-	def Ghephi(self, listaAristas):
-		self.listaAristas = listaAristas
+		for ar in self.aristas:  # Se ordena las aristas por peso
+			q.put(self.aristas[ar])
+			# uu = q.get()
+			# print("uu", uu.weight)
+		Costo_MST = 0
+		for key, value in self.nodos.items():
+			graph_kru.nodo_krusk_prim(self.nodos[value.id])
+		while not q.empty():
+			u = q.get()
+			raiz_1 = self.ariname(u.a.id)
+			raiz_2 = self.ariname(u.b.id)
 
-		listaAristasL = []
+			if raiz_1 != raiz_2:
+				graph_kru.arista_krusk_prim(u)
+				Costo_MST += u.peso
+				if self.nivel[raiz_1] < self.nivel[raiz_2]:
+					self.pariente[raiz_1] = raiz_2
+					self.nivel[raiz_2] += 1
+				else:
+					self.pariente[raiz_2] = raiz_1
+					self.nivel[raiz_1] += 1
 
-		self.listaAristasS = self.listaAristas
-		for i in self.listaAristasS:
-			for j in i:
-				listaAristasL.append(j)
-		l = listaAristasL
+		print('MST:', Costo_MST)
+		return graph_kru
 
-		li = l
+	def prim(self):
+
+		visitado = []
+		nod_dist = []
+		name = self.id + ' prim'
+		graph_prim = Grafo(name)
+		nod = len(self.nodos) + 1
+
+		for a in range(nod):
+			visitado.append(False)
+			nod_dist.append(float('inf'))
+
+
+		n = int(input("Con cual nodo inicializa prim:"))
+		q = PriorityQueue()
+		Costo_MST = 0
+		q.put((0, n))  # distancia, nodo
+		print("q", q.queue)
+
+		while not q.empty():
+			peso, nodo = q.get()
+			if visitado[nodo]:
+				continue
+			Costo_MST += peso
+			visitado[nodo] = True
+			vecinos = self.Vecinos(nodo)
+
+			for vecino in vecinos:
+				peso_arista = self.peso_prim(nodo, vecino)
+
+				if (not visitado[vecino]) and (nod_dist[vecino] > peso_arista):
+					q.put((peso_arista, vecino))
+					nod_dist[vecino] = peso_arista
+					self.nodos[vecino].padre = nodo
+		for key, value in self.nodos.items():
+			graph_prim.nodo_krusk_prim(self.nodos[value.id])
+			if value.padre != None:
+				if self.valido_arist(value.id, value.padre):
+					nueva_arista = self.arista_prim(value.id, value.padre)
+					graph_prim.arista_krusk_prim(nueva_arista)
+
+		print('Prim - MST costo:', Costo_MST)
+		return graph_prim
+
+	def Vecinos(self, nodo):
+		nod_conect = []
+		for key, value in self.aristas.items():
+			if value.a == self.nodos[nodo]:
+				nod_conect.append(int(str(value.b)))
+			if value.b == self.nodos[nodo]:
+				nod_conect.append(int(str(value.a)))
+		return nod_conect
+
+	def valido_arist(self, a, b):
+		arist1 = Arista(self.nodos[a], self.nodos[b])
+		arist2 = Arista(self.nodos[b], self.nodos[a])
+		if arist1.id in self.aristas:
+			return True
+		if arist2.id in self.aristas:
+			return True
+		return False
+
+	def peso_prim(self, a, b):
+		arist1 = Arista(self.nodos[a], self.nodos[b])
+		arist2 = Arista(self.nodos[b], self.nodos[a])
+		if arist1.id in self.aristas:
+			return self.aristas[arist1.id].peso
+		if arist2.id in self.aristas:
+			return self.aristas[arist2.id].peso
+
+	def arista_prim(self, a, b):
+		arist1 = Arista(self.nodos[a], self.nodos[b])
+		arist2 = Arista(self.nodos[b], self.nodos[a])
+		if arist1.id in self.aristas:
+			return self.aristas[arist1.id]
+		if arist2.id in self.aristas:
+			return self.aristas[arist2.id]
+
+	def Ghephi(self):
+
 		val = 'digraph example{\n'
-		for i in range(0, len(li) - 1, 2):
-			val += str(li[i]) + " -- " + str(li[i + 1]) + ";\n"
+		for key, value in self.aristas.items():
+			val += value.id+'[label= '+'"'+str(value.peso)+'"'+'];\n'
 		val += "}\n"
-
-		file = open("Generados.dot", "w+")
+		nombre = self.id+'.dot'
+		file = open(nombre, "w")
 		file.write(val)
 		file.close()
 
-		return l
 
-
+# Creamos clase algoritmos
 class algoritmos:
 	def __int__(self):
 		self.Listas = []
 
 	def malla(self, m, n):
-
 		g = Grafo()
-		hor = []
-		ver = []
+		m = n * n
+		print("total nodos", m)
 
-		graf = []
+		for i in range(1, m + 1):
+			g.agregarnodo(i)
 
-		for i in range(m):
-			for j in range(n):
-				if j < n - 1:
-					hor = g.ariname(i, i * n + j, i * n + j + 1)
-					print("hor", hor)
-				if i < m - 1:
-					ver = g.ariname(i, i * n + j, (i + 1) * n + j)
-					print("ver", ver)
-				graf.append(hor + ver)
-				hor = ()
-				ver = ()
-		return graf
+		for i in range(1, m):
+			# print("i", i)
+			if not i % n == 0:
+				g.agregararista(i, i + 1)
+			if i + n <= m:
+				g.agregararista(i, i + n)
+		return g
 
-	def erdos(self, n, a):
+	def erdos(self, n):
 
 		g = Grafo()
 		graf = []
-
-		for i in range(a):
-			n0 = rd.randint(0, n - 1)
-			n1 = rd.randint(0, n - 1)
-
-			if n0 != n1:
-				graf.append(g.ariname(i, n0, n1))
-				print("arime", graf)
-		return graf
+		for i in range(n):
+			g.agregarnodo(i)
+		count = 0
+		while (count < n):
+			nodo1 = rd.randint(0, n - 1)
+			nodo2 = rd.randint(0, n - 1)
+			if nodo1 == nodo2:
+				continue
+			if not g.arista_prim(nodo1, nodo2):
+				g.agregararista(nodo1, nodo2)
+				count += 1
+		return g
 
 	def gilbert(self, n, a):
 
 		g = Grafo()
-		graf = []
+
+		for i in range(n):
+			g.agregarnodo(i)
 
 		for i in range(n):
 			for j in range(n):
 				if rd.random() < a:
-					if i != j:
-						graf.append(g.ariname(n, i, j))
-						print("arime", graf)
-		return graf
+					if i == j:
+						continue
+					if not g.arista_prim(i, j):
+						g.agregararista(i, j)
+		return g
 
 	def geo(self, n, r):
 
 		g = Grafo()
-		graf = []
 		var_x = []
 		var_y = []
 
 		for i in range(n):
+			g.agregarnodo(i)
 			var_x.append(rd.random())
 			var_y.append(rd.random())
-		# print("x:", var_x)
-		# print("y:", var_y)
+
 		for i in range(n):
 			for j in range(n):
-				if i != j:
-					dist = round(np.sqrt(np.sum(np.square(var_x[i] - var_x[j]))), 2)
-					# print("dist:", dist)
-					if dist <= r:
-						graf.append(g.ariname(n, i, j))
-						print(graf)
-		return graf
+				if i == j:
+					continue
+				dist = round(np.sqrt(np.sum(np.square(var_x[i] - var_x[j]))), 2)
+				if dist <= r:
+					if not g.arista_prim(i, j):
+						g.agregararista(i, j)
+		return g
 
 	def bara(self, n, a):
 
@@ -236,52 +342,35 @@ class algoritmos:
 		return graf
 
 
+# Creamos la clase principal
 class Main:
 	h = algoritmos()
 	g = Grafo()
-	c = Listas()
-	peso = []
-	listDij = []
+	# peso = []
+	# listDij = []
 
 	n = int(input("introduzca el numero de nodos:"))
-	a = int(input("introduzca el numero de aristas por nodo:"))
-	# a = float(input("introduzca el rango de cobertura (0-1):"))
+	# a = int(input("introduzca el numero de aristas por nodo:"))
+	a = float(input("introduzca el rango de cobertura (0-1):"))
 	# n = int(input("valor de malla nxn: "))
-	# m = n * n
-	for li in range(n):
-		g.agregarnodo(li)
 
-	result = h.bara(n, a)
-	print("result", result)
+	grafo = h.geo(n, a)  # cambia depende el algoritmo
+	print("grafo_nombre:", grafo.id)
+	print("grafo_nodos:", len(grafo.nodos.items()))
+	print("grafo_aristas:", len(grafo.aristas.items()))
+	grafo.Ghephi()
 
-	bfss = c.Ghephi(result)
-	# print(bfss)
-	for i in range(0, len(bfss) - 1, 2):
-		p = rd.randint(100, 500)
-		peso.append((bfss[i], bfss[i + 1], p))
-	# print("peso", peso)
-	for i in range(0, len(peso)):
-		for j in range(0, 3):
-			listDij.append(peso[i][j])
-		# print("listDij", listDij)
-	for i in range(0, len(listDij) - 1, 3):
-		g.agregararista(listDij[i], listDij[i + 1], listDij[i + 2])
-	for v in g.nodos:
-		print("vecino", (v, g.nodos[v].vecinos))
+	graph_krus = grafo.Kruskal_D()
+	print("graph_krus_nombre:", graph_krus.id)
+	print("graph_krus_nodos:", len(graph_krus.nodos.items()))
+	print("graph_krus_aristas:", len(graph_krus.aristas.items()))
+	graph_krus.Ghephi()
 
-	n = int(input("seleccionar nodo: "))
-
-	g.dijkstra(n)
-	#  cam = g.camino(1, n)  # se escoge el nodo de inicio
-	#  print("cam", cam)
-	val = 'digraph example{\n'
-	for v in g.nodos:
-		val += str(g.nodos[v].padre) + " -> " + str(v) + " [Label = 'nodo_" + str(n) + " (" + str(g.nodos[v].distancia) \
-		       + ")'];\n"
-	val += "}\n"
-	file = open("Calculados.dot", "w+")
-	file.write(val)
-	file.close()
+	graph_prim = grafo.prim()
+	print("graph_prim_nombre:", graph_prim.id)
+	print("graph_prim_nodos:", len(graph_prim.nodos.items()))
+	print("ggraph_prim_aristas:", len(graph_prim.aristas.items()))
+	graph_prim.Ghephi()
 
 
 Main()
